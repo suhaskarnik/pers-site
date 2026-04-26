@@ -12,8 +12,10 @@
   --border: #334155;
   --text: #e2e8f0;
   --text-muted: #94a3b8;
-  --accent: #6366f1;
-  --accent-hover: #818cf8;
+  /* --accent: #6366f1; */
+  --accent: #a8aaff;
+  /* --accent-hover: #818cf8; */
+  --accent-hover: #929df9;
 }
 
 html {
@@ -251,7 +253,7 @@ body {
 }
 
 #banner-name {
-  font-size: 1.2rem;
+  font-size: 1.6rem;
   font-weight: 700;
   color: var(--text);
 }
