@@ -60,8 +60,11 @@ body {
 }
 
 #resume-container h1 { font-size: 1.8rem; font-weight: 700; }
-#resume-container h2 { font-size: 1.2rem; font-weight: 600; border-bottom: 1px solid var(--border); padding-bottom: 0.25em; }
-#resume-container h3 { font-size: 1rem; font-weight: 600; }
+#resume-container h2 { font-size: 1.2rem; font-weight: 600; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 0.25em; }
+#resume-container h3 { font-size: 1rem; font-weight: 600; color: var(--accent-hover); }
+#resume-container h3 em { color: var(--text-muted); }
+#resume-container strong { color: var(--accent); }
+#resume-container p em { color: var(--text-muted); }
 
 #resume-container p,
 #resume-container li {
@@ -80,9 +83,7 @@ body {
 }
 
 #resume-container hr {
-  border: none;
-  border-top: 1px solid var(--border);
-  margin: 1.25em 0;
+  display: none;
 }
 
 #resume-container ul,
