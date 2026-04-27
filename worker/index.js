@@ -87,13 +87,19 @@ async function verifyTurnstile(token, secret, clientIP) {
 }
 
 async function checkIpRateLimit(kv, ip) {
-  const now = new Date();
-  const hour = now.toISOString().slice(0, 13).replace("T", "-"); // "2026-04-27-14"
-  const key = `ip:${ip}:hour:${hour}`;
-  const current = parseInt((await kv.get(key)) || "0", 10);
-  if (current >= 10) return false;
-  await kv.put(key, String(current + 1), { expirationTtl: 7200 });
-  return true;
+  if (!ip) return true;
+  try {
+    const now = new Date();
+    const hour = now.toISOString().slice(0, 13).replace("T", "-");
+    const key = `ip:${ip}:hour:${hour}`;
+    const current = parseInt((await kv.get(key)) || "0", 10);
+    if (current >= 10) return false;
+    await kv.put(key, String(current + 1), { expirationTtl: 7200 });
+    return true;
+  } catch (err) {
+    console.error("checkIpRateLimit error:", err);
+    return true;
+  }
 }
 
 export default {
@@ -118,7 +124,7 @@ export default {
       });
     }
 
-    const clientIP = request.headers.get("CF-Connecting-IP") ?? undefined;
+    const clientIP = request.headers.get("CF-Connecting-IP") || null;
 
     // 1. Parse body
     let payload;
