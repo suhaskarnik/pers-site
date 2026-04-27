@@ -117,34 +117,46 @@ async function checkGlobalDailyCap(kv) {
 }
 
 async function callGroq(apiKey, question) {
-  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: "llama-3.1-8b-instant",
-      temperature: 0.3,
-      max_tokens: 400,
-      messages: [
-        {
-          role: "system",
-          content: `You are a helpful assistant that answers questions about Suhas Karnik's professional experience based solely on his resume below. Answer concisely and factually. If the question cannot be answered from the resume, say so politely — do not speculate or invent information.\n\n--- RESUME ---\n${RESUME_TEXT}\n--- END RESUME ---`,
-        },
-        { role: "user", content: question },
-      ],
-    }),
-  });
-  if (!res.ok) throw new Error(`Groq error: ${res.status}`);
-  const data = await res.json();
-  return data.choices[0].message.content;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+  try {
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      signal: controller.signal,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "llama-3.1-8b-instant",
+        temperature: 0.3,
+        max_tokens: 400,
+        messages: [
+          {
+            role: "system",
+            content: `You are a helpful assistant that answers questions about Suhas Karnik's professional experience based solely on his resume below. Answer concisely and factually. If the question cannot be answered from the resume, say so politely — do not speculate or invent information.\n\n--- RESUME ---\n${RESUME_TEXT}\n--- END RESUME ---`,
+          },
+          { role: "user", content: question },
+        ],
+      }),
+    });
+    if (!res.ok) throw new Error(`Groq error: ${res.status}`);
+    const data = await res.json();
+    const answer = data?.choices?.[0]?.message?.content;
+    if (!answer) throw new Error("Groq returned no content");
+    return answer;
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 export default {
   async fetch(request, env) {
     if (!env.ALLOWED_ORIGIN) {
-      return new Response(JSON.stringify({ error: "Worker misconfigured." }), { status: 500 });
+      return new Response(JSON.stringify({ error: "Worker misconfigured." }), {
+        status: 500,
+        headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+      });
     }
 
     const origin = request.headers.get("Origin") || "";
@@ -196,7 +208,15 @@ export default {
       });
     }
 
-    // 3. Per-IP rate limit
+    // 3. Input validation
+    if (!question || typeof question !== "string" || question.trim().length === 0 || question.length > 500) {
+      return new Response(JSON.stringify({ error: "Please enter a question (max 500 characters)." }), {
+        status: 400,
+        headers: { ...headers, "Content-Type": "application/json" },
+      });
+    }
+
+    // 4. Per-IP rate limit
     const ipAllowed = await checkIpRateLimit(env.RATE_LIMIT_KV, clientIP);
     if (!ipAllowed) {
       return new Response(JSON.stringify({ error: "Too many requests — try again in an hour." }), {
@@ -205,19 +225,11 @@ export default {
       });
     }
 
-    // 4. Global daily cap
+    // 5. Global daily cap
     const globalAllowed = await checkGlobalDailyCap(env.RATE_LIMIT_KV);
     if (!globalAllowed) {
       return new Response(JSON.stringify({ error: "The assistant is unavailable for today. Check back tomorrow." }), {
         status: 503,
-        headers: { ...headers, "Content-Type": "application/json" },
-      });
-    }
-
-    // 5. Input validation
-    if (!question || typeof question !== "string" || question.trim().length === 0 || question.length > 500) {
-      return new Response(JSON.stringify({ error: "Please enter a question (max 500 characters)." }), {
-        status: 400,
         headers: { ...headers, "Content-Type": "application/json" },
       });
     }
