@@ -1,4 +1,4 @@
-const WORKER_URL = "WORKER_URL_PLACEHOLDER";
+const WORKER_URL = "resume-chatbot.suhaskarnik.workers.dev";
 
 function appendMessage(role, text) {
   const messagesEl = document.getElementById("messages");

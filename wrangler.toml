@@ -4,8 +4,8 @@ compatibility_date = "2024-01-01"
 
 [[kv_namespaces]]
 binding = "RATE_LIMIT_KV"
-id = "<kv-namespace-id>"
+id = "d8470d06a8df456088a5a15f7624a7d8"
 
 [vars]
-ALLOWED_ORIGIN = "https://yourdomain.com"
-TURNSTILE_SITE_KEY = "<site-key>"
+ALLOWED_ORIGIN = "https://karniks.net"
+TURNSTILE_SITE_KEY = "0x4AAAAAADED46uTA6DDXeU6"

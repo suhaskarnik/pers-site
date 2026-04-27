@@ -173,7 +173,7 @@ export default {
     }
 
     if (!headers) {
-      return new Response(JSON.stringify({ error: "Unable to verify request." }), {
+return new Response(JSON.stringify({ error: "Unable to verify request." }), {
         status: 403,
         headers: { "Content-Type": "application/json" },
       });
@@ -195,14 +195,14 @@ export default {
     // 2. Turnstile
     const { turnstileToken, question } = payload;
     if (!turnstileToken) {
-      return new Response(JSON.stringify({ error: "Unable to verify request." }), {
+return new Response(JSON.stringify({ error: "Unable to verify request." }), {
         status: 403,
         headers: { ...headers, "Content-Type": "application/json" },
       });
     }
     const turnstileOk = await verifyTurnstile(turnstileToken, env.TURNSTILE_SECRET_KEY, clientIP);
     if (!turnstileOk) {
-      return new Response(JSON.stringify({ error: "Unable to verify request." }), {
+return new Response(JSON.stringify({ error: "Unable to verify request." }), {
         status: 403,
         headers: { ...headers, "Content-Type": "application/json" },
       });
