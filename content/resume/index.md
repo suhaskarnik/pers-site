@@ -1,6 +1,5 @@
 ---
 title: "Resume"
-layout: "resume"
 ---
 
 Senior Solution Architect | Data & Analytics | Cloud Architecture
