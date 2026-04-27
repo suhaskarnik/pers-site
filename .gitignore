@@ -3,3 +3,5 @@ superpowers
 worker/.dev.vars
 node_modules/
 .wrangler/
+public/
+resources/
