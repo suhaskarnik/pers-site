@@ -35,16 +35,15 @@ function getTurnstileToken() {
       reject(new Error("Turnstile not loaded"));
       return;
     }
-    const widgetId = document.querySelector("#turnstile-widget")?._turnstileWidgetId;
+    const container = document.querySelector("#turnstile-widget");
+    const widgetId = container?._turnstileWidgetId;
     if (!widgetId) {
       reject(new Error("Turnstile widget not initialised"));
       return;
     }
+    container._turnstilePending = { resolve, reject };
     turnstile.reset(widgetId);
-    turnstile.execute(widgetId, {
-      callback: resolve,
-      "error-callback": reject,
-    });
+    turnstile.execute(widgetId);
   });
 }
 
@@ -123,9 +122,12 @@ window.addEventListener("load", () => {
     console.error("Turnstile site key not configured. Replace TURNSTILE_SITE_KEY_PLACEHOLDER in index.html before deploying.");
     return;
   }
+  container._turnstilePending = null;
   const widgetId = turnstile.render(container, {
     sitekey,
     size: "invisible",
+    callback: (token) => container._turnstilePending?.resolve(token),
+    "error-callback": (err) => container._turnstilePending?.reject(err),
   });
   container._turnstileWidgetId = widgetId;
 });
