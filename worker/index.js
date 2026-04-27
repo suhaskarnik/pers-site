@@ -70,6 +70,20 @@ function corsHeaders(origin, allowedOrigin) {
   };
 }
 
+async function verifyTurnstile(token, secret, clientIP) {
+  const body = new URLSearchParams({
+    secret,
+    response: token,
+    remoteip: clientIP,
+  });
+  const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+    method: "POST",
+    body,
+  });
+  const data = await res.json();
+  return data.success === true;
+}
+
 export default {
   async fetch(request, env) {
     const origin = request.headers.get("Origin") || "";
@@ -92,7 +106,36 @@ export default {
       });
     }
 
-    // Remaining middleware will go here
+    const clientIP = request.headers.get("CF-Connecting-IP") || "unknown";
+
+    // 1. Parse body
+    let body;
+    try {
+      body = await request.json();
+    } catch {
+      return new Response(JSON.stringify({ error: "Invalid request body." }), {
+        status: 400,
+        headers: { ...headers, "Content-Type": "application/json" },
+      });
+    }
+
+    // 2. Turnstile
+    const { turnstileToken, question } = body;
+    if (!turnstileToken) {
+      return new Response(JSON.stringify({ error: "Unable to verify request." }), {
+        status: 403,
+        headers: { ...headers, "Content-Type": "application/json" },
+      });
+    }
+    const turnstileOk = await verifyTurnstile(turnstileToken, env.TURNSTILE_SECRET_KEY, clientIP);
+    if (!turnstileOk) {
+      return new Response(JSON.stringify({ error: "Unable to verify request." }), {
+        status: 403,
+        headers: { ...headers, "Content-Type": "application/json" },
+      });
+    }
+
+    // Rate limit + validation + Groq stubs (added in Tasks 4–6)
     return new Response(JSON.stringify({ answer: "stub" }), {
       status: 200,
       headers: { ...headers, "Content-Type": "application/json" },
