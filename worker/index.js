@@ -116,8 +116,37 @@ async function checkGlobalDailyCap(kv) {
   }
 }
 
+async function callGroq(apiKey, question) {
+  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: "llama-3.1-8b-instant",
+      temperature: 0.3,
+      max_tokens: 400,
+      messages: [
+        {
+          role: "system",
+          content: `You are a helpful assistant that answers questions about Suhas Karnik's professional experience based solely on his resume below. Answer concisely and factually. If the question cannot be answered from the resume, say so politely — do not speculate or invent information.\n\n--- RESUME ---\n${RESUME_TEXT}\n--- END RESUME ---`,
+        },
+        { role: "user", content: question },
+      ],
+    }),
+  });
+  if (!res.ok) throw new Error(`Groq error: ${res.status}`);
+  const data = await res.json();
+  return data.choices[0].message.content;
+}
+
 export default {
   async fetch(request, env) {
+    if (!env.ALLOWED_ORIGIN) {
+      return new Response(JSON.stringify({ error: "Worker misconfigured." }), { status: 500 });
+    }
+
     const origin = request.headers.get("Origin") || "";
     const allowedOrigin = env.ALLOWED_ORIGIN;
     const headers = corsHeaders(origin, allowedOrigin);
@@ -185,8 +214,26 @@ export default {
       });
     }
 
-    // Rate limit + validation + Groq stubs (added in Tasks 4–6)
-    return new Response(JSON.stringify({ answer: "stub" }), {
+    // 5. Input validation
+    if (!question || typeof question !== "string" || question.trim().length === 0 || question.length > 500) {
+      return new Response(JSON.stringify({ error: "Please enter a question (max 500 characters)." }), {
+        status: 400,
+        headers: { ...headers, "Content-Type": "application/json" },
+      });
+    }
+
+    // 6. Groq API call
+    let answer;
+    try {
+      answer = await callGroq(env.GROQ_API_KEY, question.trim());
+    } catch {
+      return new Response(JSON.stringify({ error: "Something went wrong. Please try again." }), {
+        status: 502,
+        headers: { ...headers, "Content-Type": "application/json" },
+      });
+    }
+
+    return new Response(JSON.stringify({ answer }), {
       status: 200,
       headers: { ...headers, "Content-Type": "application/json" },
     });
