@@ -102,6 +102,20 @@ async function checkIpRateLimit(kv, ip) {
   }
 }
 
+async function checkGlobalDailyCap(kv) {
+  try {
+    const day = new Date().toISOString().slice(0, 10); // "2026-04-27"
+    const key = `global:day:${day}`;
+    const current = parseInt((await kv.get(key)) || "0", 10);
+    if (current >= 500) return false;
+    await kv.put(key, String(current + 1), { expirationTtl: 90000 });
+    return true;
+  } catch (err) {
+    console.error("checkGlobalDailyCap error:", err);
+    return true;
+  }
+}
+
 export default {
   async fetch(request, env) {
     const origin = request.headers.get("Origin") || "";
@@ -158,6 +172,15 @@ export default {
     if (!ipAllowed) {
       return new Response(JSON.stringify({ error: "Too many requests — try again in an hour." }), {
         status: 429,
+        headers: { ...headers, "Content-Type": "application/json" },
+      });
+    }
+
+    // 4. Global daily cap
+    const globalAllowed = await checkGlobalDailyCap(env.RATE_LIMIT_KV);
+    if (!globalAllowed) {
+      return new Response(JSON.stringify({ error: "The assistant is unavailable for today. Check back tomorrow." }), {
+        status: 503,
         headers: { ...headers, "Content-Type": "application/json" },
       });
     }
