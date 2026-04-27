@@ -31,12 +31,19 @@ async function loadResume() {
 
 function getTurnstileToken() {
   return new Promise((resolve, reject) => {
-    const widgetId = document.querySelector("#turnstile-widget")?._turnstileWidgetId;
+    if (typeof turnstile === "undefined") {
+      reject(new Error("Turnstile not loaded"));
+      return;
+    }
+    const container = document.querySelector("#turnstile-widget");
+    const widgetId = container?._turnstileWidgetId;
+    if (!widgetId) {
+      reject(new Error("Turnstile widget not initialised"));
+      return;
+    }
+    container._turnstilePending = { resolve, reject };
     turnstile.reset(widgetId);
-    turnstile.execute(widgetId, {
-      callback: resolve,
-      "error-callback": reject,
-    });
+    turnstile.execute(widgetId);
   });
 }
 
@@ -71,8 +78,6 @@ async function ask() {
       body: JSON.stringify({ question, turnstileToken }),
     });
 
-    const data = await res.json();
-
     if (res.status === 429) {
       loadingBubble.className = "bubble ai";
       loadingBubble.textContent = "Too many requests — try again in an hour.";
@@ -83,6 +88,16 @@ async function ask() {
       loadingBubble.textContent = "The assistant is unavailable for today. Check back tomorrow.";
       return;
     }
+
+    let data;
+    try {
+      data = await res.json();
+    } catch {
+      loadingBubble.className = "bubble ai";
+      loadingBubble.textContent = "Something went wrong. Please try again.";
+      return;
+    }
+
     if (!res.ok) {
       loadingBubble.className = "bubble ai";
       loadingBubble.textContent = data.error || "Something went wrong. Please try again.";
@@ -107,9 +122,12 @@ window.addEventListener("load", () => {
     console.error("Turnstile site key not configured. Replace TURNSTILE_SITE_KEY_PLACEHOLDER in index.html before deploying.");
     return;
   }
+  container._turnstilePending = null;
   const widgetId = turnstile.render(container, {
     sitekey,
     size: "invisible",
+    callback: (token) => container._turnstilePending?.resolve(token),
+    "error-callback": (err) => container._turnstilePending?.reject(err),
   });
   container._turnstileWidgetId = widgetId;
 });
