@@ -86,6 +86,16 @@ async function verifyTurnstile(token, secret, clientIP) {
   }
 }
 
+async function checkIpRateLimit(kv, ip) {
+  const now = new Date();
+  const hour = now.toISOString().slice(0, 13).replace("T", "-"); // "2026-04-27-14"
+  const key = `ip:${ip}:hour:${hour}`;
+  const current = parseInt((await kv.get(key)) || "0", 10);
+  if (current >= 10) return false;
+  await kv.put(key, String(current + 1), { expirationTtl: 7200 });
+  return true;
+}
+
 export default {
   async fetch(request, env) {
     const origin = request.headers.get("Origin") || "";
@@ -133,6 +143,15 @@ export default {
     if (!turnstileOk) {
       return new Response(JSON.stringify({ error: "Unable to verify request." }), {
         status: 403,
+        headers: { ...headers, "Content-Type": "application/json" },
+      });
+    }
+
+    // 3. Per-IP rate limit
+    const ipAllowed = await checkIpRateLimit(env.RATE_LIMIT_KV, clientIP);
+    if (!ipAllowed) {
+      return new Response(JSON.stringify({ error: "Too many requests — try again in an hour." }), {
+        status: 429,
         headers: { ...headers, "Content-Type": "application/json" },
       });
     }
