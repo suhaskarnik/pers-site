@@ -1,0 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+:root {
+  --accent: #a8aaff;
+}
+
+/* Site banner on PaperMod pages */
+#site-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 2rem;
+  background-color: #1e293b;
+  border-bottom: 1px solid #334155;
+}
+
+#banner-name {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #e2e8f0;
+}
+
+#banner-links {
+  display: flex;
+  gap: 1.5rem;
+}
+
+#banner-links a {
+  color: #a8aaff;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+#banner-links a:hover {
+  color: #929df9;
+  text-decoration: underline;
+}
