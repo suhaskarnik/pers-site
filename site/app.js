@@ -1,4 +1,4 @@
-const WORKER_URL = "https://your-worker-url.workers.dev/ask";
+const WORKER_URL = "WORKER_URL_PLACEHOLDER";
 
 function appendMessage(role, text) {
   const messagesEl = document.getElementById("messages");
@@ -29,6 +29,17 @@ async function loadResume() {
   document.getElementById("resume-container").innerHTML = doc.body.innerHTML;
 }
 
+function getTurnstileToken() {
+  return new Promise((resolve, reject) => {
+    const widgetId = document.querySelector("#turnstile-widget")?._turnstileWidgetId;
+    turnstile.reset(widgetId);
+    turnstile.execute(widgetId, {
+      callback: resolve,
+      "error-callback": reject,
+    });
+  });
+}
+
 async function askPreset(q) {
   document.getElementById("question").value = q;
   await ask();
@@ -44,14 +55,40 @@ async function ask() {
 
   const loadingBubble = appendMessage("ai loading", "...");
 
+  let turnstileToken;
+  try {
+    turnstileToken = await getTurnstileToken();
+  } catch {
+    loadingBubble.className = "bubble ai";
+    loadingBubble.textContent = "Unable to verify request. Please refresh the page.";
+    return;
+  }
+
   try {
     const res = await fetch(WORKER_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question })
+      body: JSON.stringify({ question, turnstileToken }),
     });
 
     const data = await res.json();
+
+    if (res.status === 429) {
+      loadingBubble.className = "bubble ai";
+      loadingBubble.textContent = "Too many requests — try again in an hour.";
+      return;
+    }
+    if (res.status === 503) {
+      loadingBubble.className = "bubble ai";
+      loadingBubble.textContent = "The assistant is unavailable for today. Check back tomorrow.";
+      return;
+    }
+    if (!res.ok) {
+      loadingBubble.className = "bubble ai";
+      loadingBubble.textContent = data.error || "Something went wrong. Please try again.";
+      return;
+    }
+
     loadingBubble.className = "bubble ai";
     loadingBubble.textContent = data.answer;
   } catch {
@@ -61,3 +98,18 @@ async function ask() {
 }
 
 loadResume();
+
+window.addEventListener("load", () => {
+  const container = document.getElementById("turnstile-widget");
+  if (!container) return;
+  const sitekey = container.dataset.sitekey;
+  if (!sitekey || sitekey.includes("PLACEHOLDER")) {
+    console.error("Turnstile site key not configured. Replace TURNSTILE_SITE_KEY_PLACEHOLDER in index.html before deploying.");
+    return;
+  }
+  const widgetId = turnstile.render(container, {
+    sitekey,
+    size: "invisible",
+  });
+  container._turnstileWidgetId = widgetId;
+});
