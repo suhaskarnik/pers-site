@@ -1,0 +1,11 @@
+name = "resume-chatbot"
+main = "worker/index.js"
+compatibility_date = "2024-01-01"
+
+[[kv_namespaces]]
+binding = "RATE_LIMIT_KV"
+id = "<kv-namespace-id>"
+
+[vars]
+ALLOWED_ORIGIN = "https://yourdomain.com"
+TURNSTILE_SITE_KEY = "<site-key>"
