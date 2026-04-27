@@ -31,7 +31,15 @@ async function loadResume() {
 
 function getTurnstileToken() {
   return new Promise((resolve, reject) => {
+    if (typeof turnstile === "undefined") {
+      reject(new Error("Turnstile not loaded"));
+      return;
+    }
     const widgetId = document.querySelector("#turnstile-widget")?._turnstileWidgetId;
+    if (!widgetId) {
+      reject(new Error("Turnstile widget not initialised"));
+      return;
+    }
     turnstile.reset(widgetId);
     turnstile.execute(widgetId, {
       callback: resolve,
@@ -71,8 +79,6 @@ async function ask() {
       body: JSON.stringify({ question, turnstileToken }),
     });
 
-    const data = await res.json();
-
     if (res.status === 429) {
       loadingBubble.className = "bubble ai";
       loadingBubble.textContent = "Too many requests — try again in an hour.";
@@ -83,6 +89,16 @@ async function ask() {
       loadingBubble.textContent = "The assistant is unavailable for today. Check back tomorrow.";
       return;
     }
+
+    let data;
+    try {
+      data = await res.json();
+    } catch {
+      loadingBubble.className = "bubble ai";
+      loadingBubble.textContent = "Something went wrong. Please try again.";
+      return;
+    }
+
     if (!res.ok) {
       loadingBubble.className = "bubble ai";
       loadingBubble.textContent = data.error || "Something went wrong. Please try again.";
