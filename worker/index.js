@@ -71,17 +71,19 @@ function corsHeaders(origin, allowedOrigin) {
 }
 
 async function verifyTurnstile(token, secret, clientIP) {
-  const body = new URLSearchParams({
-    secret,
-    response: token,
-    remoteip: clientIP,
-  });
-  const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
-    method: "POST",
-    body,
-  });
-  const data = await res.json();
-  return data.success === true;
+  try {
+    const params = { secret, response: token };
+    if (clientIP) params.remoteip = clientIP;
+    const body = new URLSearchParams(params);
+    const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      body,
+    });
+    const data = await res.json();
+    return data.success === true;
+  } catch {
+    return false;
+  }
 }
 
 export default {
@@ -106,12 +108,12 @@ export default {
       });
     }
 
-    const clientIP = request.headers.get("CF-Connecting-IP") || "unknown";
+    const clientIP = request.headers.get("CF-Connecting-IP") ?? undefined;
 
     // 1. Parse body
-    let body;
+    let payload;
     try {
-      body = await request.json();
+      payload = await request.json();
     } catch {
       return new Response(JSON.stringify({ error: "Invalid request body." }), {
         status: 400,
@@ -120,7 +122,7 @@ export default {
     }
 
     // 2. Turnstile
-    const { turnstileToken, question } = body;
+    const { turnstileToken, question } = payload;
     if (!turnstileToken) {
       return new Response(JSON.stringify({ error: "Unable to verify request." }), {
         status: 403,
