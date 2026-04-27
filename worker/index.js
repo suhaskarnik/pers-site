@@ -64,7 +64,7 @@ PERSONAL PROJECTS & OPEN SOURCE
 function corsHeaders(origin, allowedOrigins) {
 	if (!allowedOrigins.includes(origin)) return null;
   return {
-    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Origin": origin,
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
   };
