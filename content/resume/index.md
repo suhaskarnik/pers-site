@@ -11,7 +11,7 @@ suhaskarnik@gmail.com | +91 9886980022 | Bangalore, India
 
 ## Professional Summary
 
-Data and analytics architect with 18 years of experience designing and delivering end-to-end analytical solutions across cloud and on-premises environments. Has owned the full lifecycle of analytical models in production — from architecture and deployment through monitoring and handover — and consistently translates unstructured business problems into actionable, re-deployable solutions. Experienced communicating complex analytical decisions to senior executives and capable of operating independently across the full project lifecycle from design through delivery and governance.
+Data and analytics architect with 18 years of experience designing and delivering end-to-end analytical solutions across cloud and on-premises environments. Has owned the full lifecycle of analytical models in production — from architecture and deployment through monitoring and handover — and consistently translates unstructured business problems into actionable, re-deployable solutions. Experienced in communicating complex analytical decisions to senior executives and capable of operating independently across the full project lifecycle from design through delivery and governance.
 
 ---
 
@@ -53,7 +53,7 @@ Data and analytics architect with 18 years of experience designing and deliverin
 
 ## Professional Experience
 
-### Senior Solution Architect — Shell *(2015 – Present)*
+### Senior Solution Architect — Major Integrated Oil & Gas Company *(2015 – Present)*
 
 **Subsurface Analytics Platform** *(Oct 2025 – Present)*
 
@@ -87,7 +87,7 @@ Data and analytics architect with 18 years of experience designing and deliverin
 
 ### Solutions Consultant — [Prior Employers] *(pre-2014)*
 
-- Led requirements gathering, solution design, and technical team delivery for two client engagements: Northern Gas Networks (UK) and Philips (NL), each approximately one year in duration
+- Led requirements gathering, solution design, and technical team delivery for two client engagements: British gas pipeline management company and Dutch healthcare manufacturing company, each approximately one year in duration
 
 ---
 
