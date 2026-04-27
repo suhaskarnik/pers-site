@@ -1,0 +1,8 @@
+superpowers
+.worktrees/
+worker/.dev.vars
+node_modules/
+.wrangler/
+public/
+resources/
+.hugo_build.lock

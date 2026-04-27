@@ -1,0 +1,20 @@
+<aside id="chat-panel">
+  <div id="chat-header">Ask about experience</div>
+
+  <div id="messages"></div>
+
+  <div id="chat-input-zone">
+    <div id="preset-chips">
+      <button onclick="askPreset('Summarize Kubernetes experience')">Kubernetes experience</button>
+      <button onclick="askPreset('Summarize system design experience')">System design</button>
+      <button onclick="askPreset('Summarize leadership experience')">Leadership</button>
+    </div>
+    <div id="input-row">
+      <textarea id="question" placeholder="Ask a question..." rows="1"></textarea>
+      <button onclick="ask()">Ask</button>
+    </div>
+    <div id="turnstile-widget" data-sitekey="0x4AAAAAADED46uTA6DDXeU6"></div>
+  </div>
+</aside>
+<script src="{{ "app.js" | relURL }}"></script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>

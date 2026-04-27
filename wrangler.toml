@@ -1,0 +1,11 @@
+name = "resume-chatbot"
+main = "worker/index.js"
+compatibility_date = "2024-01-01"
+
+[[kv_namespaces]]
+binding = "RATE_LIMIT_KV"
+id = "d8470d06a8df456088a5a15f7624a7d8"
+
+[vars]
+ALLOWED_ORIGIN = "https://karniks.net,http://localhost:1313,https://resume-chatbot.suhaskarnik.workers.dev"
+TURNSTILE_SITE_KEY = "0x4AAAAAADED46uTA6DDXeU6"
