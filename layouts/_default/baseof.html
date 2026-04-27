@@ -1,12 +1,18 @@
+{{- $theme := site.Params.defaultTheme | default "auto" }}
 <!DOCTYPE html>
-<html lang="{{ site.Language.LanguageCode }}" dir="{{ .Language.LanguageDirection | default "auto" }}">
+{{- if eq $theme "dark" }}
+<html lang="{{ site.Language.LanguageCode }}" dir="{{ .Language.LanguageDirection | default "auto" }}" data-theme="dark">
+{{- else if eq $theme "light" }}
+<html lang="{{ site.Language.LanguageCode }}" dir="{{ .Language.LanguageDirection | default "auto" }}" data-theme="light">
+{{- else }}
+<html lang="{{ site.Language.LanguageCode }}" dir="{{ .Language.LanguageDirection | default "auto" }}" data-theme="auto">
+{{- end }}
 
 <head>
     {{- partial "head.html" . }}
 </head>
 
 <body class="{{ if .IsHome }}home{{ end }}list" id="top">
-    {{- partial "banner.html" . }}
     {{- partial "header.html" . }}
     <main class="main">
         {{- block "main" . }}{{- end }}

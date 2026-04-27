@@ -1,27 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{{ .Site.Title }} — Resume</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="{{ "resume.css" | relURL }}" />
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-</head>
-<body>
-  {{- partial "banner.html" . }}
-
-  <div id="layout">
-    <section id="resume-column">
-      <div id="resume-container">
+{{ define "main" }}
+<div class="resume-layout">
+  <div class="resume-content">
+    <article class="post-single">
+      <header class="post-header">
+        <h1 class="post-title">{{ .Title }}</h1>
+      </header>
+      <div class="post-content md-content">
         {{ .Content }}
       </div>
-    </section>
-
-    {{- partial "chatbot.html" . }}
+    </article>
   </div>
-
-  <script src="{{ "app.js" | relURL }}"></script>
-</body>
-</html>
+  {{- partial "chatbot.html" . }}
+</div>
+{{ end }}

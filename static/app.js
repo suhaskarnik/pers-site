@@ -104,8 +104,11 @@ window.addEventListener("load", () => {
   container._turnstilePending = null;
   const widgetId = turnstile.render(container, {
     sitekey,
-    size: "invisible",
-    callback: (token) => container._turnstilePending?.resolve(token),
+    size: "normal",
+    callback: (token) => {
+			console.log("Turnstile callback fired, token:", token ? "ok" : "empty");
+			container._turnstilePending?.resolve(token);
+		},
     "error-callback": (err) => container._turnstilePending?.reject(err),
   });
   container._turnstileWidgetId = widgetId;

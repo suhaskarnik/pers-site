@@ -61,8 +61,8 @@ PERSONAL PROJECTS & OPEN SOURCE
 - k3s-homelab — Terraform-managed K3s cluster on Proxmox
 - cicd-trunk — Trunk-driven CI/CD pipeline to AWS Lambda using Terraform`;
 
-function corsHeaders(origin, allowedOrigin) {
-  if (origin !== allowedOrigin) return null;
+function corsHeaders(origin, allowedOrigins) {
+	if (!allowedOrigins.includes(origin)) return null;
   return {
     "Access-Control-Allow-Origin": allowedOrigin,
     "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -160,8 +160,9 @@ export default {
     }
 
     const origin = request.headers.get("Origin") || "";
-    const allowedOrigin = env.ALLOWED_ORIGIN;
-    const headers = corsHeaders(origin, allowedOrigin);
+		const allowedOrigins = env.ALLOWED_ORIGIN.split(",").map(s => s.trim());
+    const headers = corsHeaders(origin, allowedOrigins);
+
 
     if (request.method === "OPTIONS") {
       if (!headers) return new Response(null, { status: 403 });

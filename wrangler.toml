@@ -7,5 +7,5 @@ binding = "RATE_LIMIT_KV"
 id = "d8470d06a8df456088a5a15f7624a7d8"
 
 [vars]
-ALLOWED_ORIGIN = "https://karniks.net"
+ALLOWED_ORIGIN = "https://karniks.net,http://localhost:1313"
 TURNSTILE_SITE_KEY = "0x4AAAAAADED46uTA6DDXeU6"

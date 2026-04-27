@@ -1,8 +1,8 @@
 ---
 title: "Resume"
+layout: "resume"
 ---
 
-# Suhas Karnik
 Senior Solution Architect | Data & Analytics | Cloud Architecture
 
 suhaskarnik@gmail.com | +91 9886980022 | Bangalore, India

@@ -5,3 +5,4 @@ node_modules/
 .wrangler/
 public/
 resources/
+.hugo_build.lock
