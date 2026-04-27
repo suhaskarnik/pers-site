@@ -1,0 +1,41 @@
+baseURL = "https://karniks.net/"
+languageCode = "en-us"
+title = "Suhas Karnik"
+theme = "PaperMod"
+enableRobotsTXT = true
+buildDrafts = false
+
+[params]
+  author = "Suhas Karnik"
+  description = "Senior Solution Architect | Data & Analytics | Cloud Architecture"
+  defaultTheme = "dark"
+  disableThemeToggle = true
+  ShowShareButtons = false
+  ShowReadingTime = false
+  comments = false
+
+  [params.profileMode]
+    enabled = true
+    title = "Suhas Karnik"
+    subtitle = "Senior Solution Architect | Data & Analytics | Cloud Architecture"
+
+  [[params.socialIcons]]
+    name = "linkedin"
+    url = "https://www.linkedin.com/in/suhaskarnik/"
+
+  [[params.socialIcons]]
+    name = "github"
+    url = "https://github.com/suhaskarnik"
+
+[menu]
+  [[menu.main]]
+    identifier = "resume"
+    name = "Resume"
+    url = "/resume/"
+    weight = 10
+
+  [[menu.main]]
+    identifier = "posts"
+    name = "Posts"
+    url = "/posts/"
+    weight = 20
