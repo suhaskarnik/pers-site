@@ -167,3 +167,22 @@ body {
 #input-row > button:hover {
   opacity: 0.8;
 }
+
+/* Keep defaults for mobile/tablet */
+
+/* Apply wider layout only on desktop */
+@media (min-width: 1024px) {
+    .main {
+        max-width: 900px;   /* tune: 900–1100px is a reasonable band */
+    }
+
+    .post-content {
+        max-width: 100%;
+    }
+
+    /* Optional: let code blocks use full width */
+    .highlight,
+    pre {
+        max-width: 100%;
+    }
+}
