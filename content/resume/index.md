@@ -4,8 +4,7 @@ title: "Resume"
 
 Senior Solution Architect | Data & Analytics | Cloud Architecture
 
-suhaskarnik@gmail.com | +91 9886980022 | Bangalore, India
-[linkedin.com/in/suhaskarnik](https://www.linkedin.com/in/suhaskarnik/)
+Bangalore, India | [LinkedIn](https://www.linkedin.com/in/suhaskarnik/)
 
 ---
 
