@@ -86,7 +86,7 @@ Data and analytics architect with 18 years of experience designing and deliverin
 
 ### Solutions Consultant — [Prior Employers] *(pre-2014)*
 
-- Led requirements gathering, solution design, and technical team delivery for two client engagements: Northern Gas Networks (UK) and Philips (NL), each approximately one year in duration
+- Led requirements gathering, solution design, and technical team delivery for two client engagements: Gas pipeline maintenance company (UK) and major healthcare equipments manufacturer (NL), each approximately one year in duration
 
 ---
 
