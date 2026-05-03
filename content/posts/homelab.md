@@ -3,6 +3,7 @@ title: "A Homelab That Deploys with git push"
 tags:
     - homelab
     - infra
+date: "2026-05-01"
 ---
 
 For the last several months I've started running my own homelab on a single cheap server machine sitting on my home LAN. The primary motivation for this was to familiarise myself with running a server and multiple services on bare metal and understand how to manage such infrastructure. 
