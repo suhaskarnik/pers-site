@@ -1,6 +1,5 @@
 ---
 title: "Hello World"
-weight: 999
 date: "2026-04-26"
 ---
 

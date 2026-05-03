@@ -1,5 +1,6 @@
 ---
 title: "SpecKit Past the Happy Path"
+date: "2026-05-03"
 tags: 
     - vibe-coding
 ---
