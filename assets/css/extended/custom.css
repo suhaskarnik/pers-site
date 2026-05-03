@@ -173,7 +173,7 @@ body {
 /* Apply wider layout only on desktop */
 @media (min-width: 1024px) {
     .main {
-        max-width: 900px;   /* tune: 900–1100px is a reasonable band */
+        max-width: 1050px;   /* tune: 900–1100px is a reasonable band */
     }
 
     .post-content {
