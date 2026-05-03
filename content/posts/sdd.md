@@ -1,67 +1,114 @@
 ---
-title: Field Notes on SpecKit
-draft: true
+title: "SpecKit Past the Happy Path"
 tags: 
     - vibe-coding
 ---
 
-I recently started using SpecKit for personal projects to get a hang of the tool and to understand its ability to handle a growing codebase. This post isn't to opine on the "what happens to software devs" debate, but to consider how SpecKit and similar spec driven frameworks work in practice. 
+I recently started using SpecKit for personal projects to understand how it handles a growing codebase. I went in with the mental model of one feature = one spec. That held up well early on; it started showing cracks as the project grew and incremental updates became harder to slot into SpecKit's constructs.
 
-When I began, I started with the mental model of one feature = one spec. Further down the road, this started to show its limitations as incremental updates to features became more awkward to slot into SpecKit's constructs
+[SpecKit](https://github.com/github/spec-kit) is an open source toolkit from GitHub that aims to provide a Spec Driven Development (SDD) workflow around coding agents. The core idea is to define the specification (spec) first and then drive the agentic software dev based on those specs. In theory, this should make the code more robust as the agent is following clearly defined requirements. Of course, the specs themselves need not be entirely written manually, though the requirement at its core must come from the human. Taken to its logical conclusion, the spec is treated as the source with the LLM acting as a compiler of sorts that converts the spec into the code. How well this matches reality, was what I was trying to explore.  
 
-The app is a personal finance web app inspired by [YNAB](www.ynab.com), but with the following key design choices:
-1. The data storage is Postgres and has an API front end built in Go. The reason for choosing Go is that unlike Python, Go more tightly constrains the space of correct programs. For example, it prevents the liberal flouting of public/private visibility of variables. Visibility is obvious when you look at the name of a variable (capitalisation). Unused code in Go is a bug unlike in most languages. In addition, the fast compile time and the excellent toolchain enable fast iteration
-2. A CLI, also in Go, that connects to the API. The reason for this choice is to enable Bash scripts to interact with app and also in future, allow an LLM to call this CLI. MCP was another potential choice, and there is [quite some debate in the community](https://www.scalekit.com/blog/mcp-vs-cli-use) on this. For a personal app though, a CLI seems to be more appropriate
-3. A React frontend webapp using shadcn and Vite. The webapp also calls the same API. I don't work too much on frontend, so this was the most unfamiliar to me
-4. This isn't intended to be a commercial app, so authentication is minimal and multi-user support is non-existent
+I also looked in parallel at [OpenSpec](https://github.com/Fission-AI/OpenSpec), another SDD tool. It has a similar workflow as SpecKit, but is a bit more lightweight in terms of generating fewer artifacts. I settled on SpecKit though, as it is way more popular then OpenSpec.
 
-To be clear, all these were *my* design choices going in. The LLM worked within those high level choices.
+The app is a personal finance web app inspired by [YNAB](https://www.ynab.com), built around these design choices:
+
+1. **Postgres + Go API**: Go constrains the space of correct programs in ways that are useful when an LLM is writing most of the code. Visibility follows capitalization, unused code is a compile error, and the toolchain is fast. Compared to Python, there's less room for the model to be subtly wrong and have it compile anyway.
+2. **Go CLI**: A CLI lets Bash scripts interact with the app and leaves the door open for an LLM to call it directly. There's [active debate in the community](https://www.scalekit.com/blog/mcp-vs-cli-use) about CLI vs MCP for this kind of use case; for a personal app, CLI felt more appropriate.
+3. **React + shadcn + Vite frontend**: Frontend is the part of the stack I know least well, so this was the most unfamiliar territory.
+4. No authentication and no multi-user support — this isn't a commercial product.
+
+These were my design choices going in. SpecKit worked within them.
 
 # How I went about it
 
-Claude Code on Pro Plan
-Used `superpowers:brainstorming` skill for the initial design. It came up with several good design questions and tradeoffs that I hadn't originally thought of. Used it to output a feature lsit
-Passed the feature list, one feature at a time, to SpecKit for implementation
-Used Google Stitch to mockup a simple front end and passed it to Claude Code to base the React frontend on
-Claude Code does not run directly on my laptop. I've a Claude Code Docker image hosted on a registry my homelab (more on that in a different blog post) and the image gets (re)built nightly. This way, whenever I want to run CC, I simply `podman run ...` and then SSH into it
+- Ran the `superpowers:brainstorming` skill for initial design. [Superpowers](https://github.com/obra/superpowers) is an independent open-source project, it's not part of SpecKit, but is an incredibly useful set of skills that help in agentic coding workflows. It surfaced tradeoffs I hadn't thought through — including the observation that modeling the CLI after `docker` or `kubectl` would reduce onboarding friction for both humans and agents. The output was a prioritized feature list.
+- Passed that feature list to SpecKit one feature at a time for implementation.
+- Used [Google Stitch](http://stitch.withgoogle.com/) to mock up the frontend and handed the mockup to Claude Code as a reference for the React UI.
+- Claude Code runs inside a Docker image hosted on a registry on my homelab, rebuilt nightly. When I want a session, I `podman run ...` and SSH in. More on the homelab in a separate future post.
 
 # What worked well
 
-- Each feature becomes a new branch, thus keeping its changes self-contained. This is in contrast to OpenSpec which doesn't mandate this separation
-- Enforcing red-green TDD as part of the `constitition.md` helps a lot, as it ensures the LLM checks its work regularly
-- Code quality was consistently good
-- Using Go paid off, for the reasons mentioned above
-- The `superpowers:brainstorming` skill is genuinely useful. It correctly reasoned through my constraints and for example, figured out that creating a CLI that looks and works like `docker` or `kubectl` would reduce any onboarding work for a human or an agent
+- Each feature gets its own branch, keeping changes self-contained. OpenSpec doesn't mandate this, and the difference shows.
+- Enforcing red-green TDD through `constitution.md` works well. It gives the LLM a regular checkpoint to verify its output, rather than generating a large block of code and hoping for the best
+- Code quality was consistently high, and so was adherence to the provided spec
+- Go paid off. The compiler catches a class of mistakes the LLM might otherwise leave behind.
+- The brainstorming skill is genuinely useful as a starting point, especially for surfacing design questions that aren't obvious from the requirements.
 
-# What didn't
+# What didn't work so well
 
-## Heavy process, Massive documentation
-Every feature requires the following commands:
-- `specify` to first create the original spec and flag ambiguities 
-- `clarify` is optional (but mandatory if there are ambiguities)
-- `plan` is different from Claude Code's plan mode. This `plan` is SpecKit thinking more deeply about how to implement the spec. This is the most interesting part, as it may kick off research agents to dive deeper into specific choices
-- `tasks` breaks down the plan into executable tasks
-- `implement` is self-explanatory
+## Heavy process, heavy documentation
 
-Each command generates a markdown file to capture its output. Each feature produces one set of such markdown files. Reviewing each document gets tedious and after a while I was just YOLOing and asking it to proceed with its plans and tasks.
+Before any feature is created, a `constitution.md` must be created. Like a nation's constitution, this is the highest governing document that exists. It defines the core architectural principles for the project. 
+
+Every feature requires five commands in sequence:
+
+- `specify` — creates the spec and flags ambiguities
+- `clarify` — optional, but effectively mandatory when ambiguities exist
+- `plan` — SpecKit thinks through implementation in depth; it may spin up research agents to evaluate specific choices. This is the most interesting step.
+- `tasks` — breaks the plan into executable steps
+- `implement`
+
+```mermaid
+---
+config:
+    theme: dark
+---
+flowchart LR
+    A([specify]) --> B([clarify])
+    B -->|ambiguities remain| B
+    B --> C([plan])
+    C --> D([tasks])
+    D --> E([implement])
+```
+
+Each command produces a markdown file. Every feature therefore generates a set of documents. Reviewing all of them gets tedious quickly, and eventually I found myself accepting plans and tasks without reading them carefully — which undermines the whole point of having a plan.
 
 ## Burgeoning context window
 
-As the code grows, so do the specs. A lot of things (markdown files and actual code) are competing for the same, finite context window. LLMs these days use progressive disclosure so they can mitigate this to an extent. However this is not a silver bullet and as a result, obvious things started to get left out. For example, an early decision was to store all amounts as subunits (i.e. cents, paise instead of USD/INR). That eliminates floating point errors so is a good decision on the DB end. However, the user interface must always show and accept data in the main unit (USD/INR) and handle the conversion. Which it did inconsistently. Some UI screens used the main units while others the subunits
+As the codebase and specs grow, they compete for the same finite context window. Progressive disclosure helps, but it's not enough. Decisions made early in the project start getting forgotten.
 
-## Bug fixing and modifications become messy
+A concrete example: I decided early to store all monetary amounts as subunits (cents and paise rather than USD/INR) to eliminate floating-point errors at the DB layer. The UI needs to show and accept values in the main unit and handle the conversion. This worked consistently at first. Over time it didn't — some screens used the main unit, others the subunit, with no pattern to it. The tests passed because each test was written against its own spec; no test was checking the system-level invariant.
 
-While creating a greenfield feature is easy, the problem starts to occur when you need to do bug fixes or modify/enhance an existing feature. In the bug-fix case, this could introduce code that doesn't necessarily match the feature spec. In the latter case, it is not always clear whether the existing feature spec should be modified (and if so what is the workflow) or a different feature should be created. 
+## Bug fixes and modifications
 
-## Horizontal vs Vertical slices
+Creating a greenfield feature with SpecKit is smooth. Bug fixes and enhancements are less so. A bug fix may introduce code that doesn't match the feature spec it touches. An enhancement raises the question of whether to modify the existing spec or create a new one — and SpecKit doesn't have a clear answer. The workflow for evolving existing features is underspecified.
 
-This is another difficult choice. LLMs tend to prefer horizontal slicing i.e. splitting the code writing process into a DB layer, an auth layer, a logging layer and going from there. This however makes it difficult to verify that the app is working, until all layers are built. I opted for a vertical slicing strategy, but this has the other problem that certain things are genuinely cross-cutting concerns like auth and logging. The vertical slicing has worked now, but this could become brittle f a cross-cutting concern needs modification. 
+## Horizontal vs. vertical slicing
 
+LLMs tend toward horizontal slicing: build the DB layer, then the auth layer, then the logging layer. That approach makes it hard to verify anything works until all the layers exist. I opted for vertical slicing — one working slice of functionality at a time — but cross-cutting concerns like auth and logging don't fit cleanly into vertical slices. The vertical approach has held up, but it could get brittle if a cross-cutting concern needs significant modification.
+
+```mermaid
+---
+config:
+    theme: dark
+---
+flowchart TB
+    subgraph Horiz["Horizontal Slicing — build by layer"]
+        direction TB
+        hDB["DB layer (all features)"] --> hAuth["Auth layer (all features)"] --> hAPI["API layer (all features)"] --> hUI["UI layer (all features)"]
+    end
+    subgraph Vert["Vertical Slicing — build by feature"]
+        direction LR
+        subgraph F1["Accounts Feature"]
+            direction TB
+            f1db[DB] --> f1auth[Auth] --> f1api[API] --> f1ui[UI]
+        end
+        subgraph F2["Categories Feature"]
+            direction TB
+            f2db[DB] --> f2auth[Auth] --> f2api[API] --> f2ui[UI]
+        end
+        subgraph Fn["Transactions Feature"]
+            direction TB
+            fndb[DB] --> fnauth[Auth] --> fnapi[API] --> fnui[UI]
+        end
+        F1 --> F2 --> Fn
+    end
+```
 
 # Closing thoughts
 
-- Red-green TDD is a good design pattern to use with agents, and is something I plan to continue using
-- TDD does not however ensure consistent working software, as the subunit example shows
-- Brainstorming with an agent is legitimately a strong way to start
-- Despite this, Spec Driven tools lack a clear methodology to break down a project into features that can be built and verified easily. I used superpowers to do this, but that is a skill external to any SDD tools
-- The grain and boundaries of a feature remain a difficult problem to solve and need careful thought
+- Red-green TDD is a strong pattern to use with agents. Regular verification checkpoints catch regressions before they compound.
+- TDD does not ensure consistent behavior across the system. Each test verifies its spec in isolation; system-level invariants require something more.
+- Brainstorming with an agent before writing a line of code is a genuinely good use of the tool.
+- Spec-driven frameworks lack a clear methodology for decomposing a project into features that can be built and verified independently. I used the brainstorming skill to fill that gap, but that's external to SpecKit.
+- Feature boundaries remain a hard problem regardless of tooling. The grain and scope of each feature need careful thought upfront — SpecKit won't resolve that for you.
