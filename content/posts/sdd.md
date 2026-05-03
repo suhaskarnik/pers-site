@@ -11,10 +11,11 @@ When I began, I started with the mental model of one feature = one spec. Further
 
 The app is a personal finance web app inspired by [YNAB](www.ynab.com), but with the following key design choices:
 1. The data storage is Postgres and has an API front end built in Go. The reason for choosing Go is that unlike Python, Go more tightly constrains the space of correct programs. For example, it prevents the liberal flouting of public/private visibility of variables. Visibility is obvious when you look at the name of a variable (capitalisation). Unused code in Go is a bug unlike in most languages. In addition, the fast compile time and the excellent toolchain enable fast iteration
-2. A CLI, also in Go, that connects to the API. The CLI is written to behave similarly to the `docker` or `kubectl`. The reason for this choice is to enable Bash scripts to interact with app and also in future, allow an LLM to call this CLI. MCP was another potential choice, and there is [quite some debate in the community](https://www.scalekit.com/blog/mcp-vs-cli-use) on this. For a personal app though, a CLI seems to be more appropriate
+2. A CLI, also in Go, that connects to the API. The reason for this choice is to enable Bash scripts to interact with app and also in future, allow an LLM to call this CLI. MCP was another potential choice, and there is [quite some debate in the community](https://www.scalekit.com/blog/mcp-vs-cli-use) on this. For a personal app though, a CLI seems to be more appropriate
 3. A React frontend webapp using shadcn and Vite. The webapp also calls the same API. I don't work too much on frontend, so this was the most unfamiliar to me
 4. This isn't intended to be a commercial app, so authentication is minimal and multi-user support is non-existent
 
+To be clear, all these were *my* design choices going in. The LLM worked within those high level choices.
 
 # How I went about it
 
@@ -30,6 +31,7 @@ Claude Code does not run directly on my laptop. I've a Claude Code Docker image 
 - Enforcing red-green TDD as part of the `constitition.md` helps a lot, as it ensures the LLM checks its work regularly
 - Code quality was consistently good
 - Using Go paid off, for the reasons mentioned above
+- The `superpowers:brainstorming` skill is genuinely useful. It correctly reasoned through my constraints and for example, figured out that creating a CLI that looks and works like `docker` or `kubectl` would reduce any onboarding work for a human or an agent
 
 # What didn't
 
@@ -45,5 +47,21 @@ Each command generates a markdown file to capture its output. Each feature produ
 
 ## Burgeoning context window
 
+As the code grows, so do the specs. A lot of things (markdown files and actual code) are competing for the same, finite context window. LLMs these days use progressive disclosure so they can mitigate this to an extent. However this is not a silver bullet and as a result, obvious things started to get left out. For example, an early decision was to store all amounts as subunits (i.e. cents, paise instead of USD/INR). That eliminates floating point errors so is a good decision on the DB end. However, the user interface must always show and accept data in the main unit (USD/INR) and handle the conversion. Which it did inconsistently. Some UI screens used the main units while others the subunits
 
-# What this might 
+## Bug fixing and modifications become messy
+
+While creating a greenfield feature is easy, the problem starts to occur when you need to do bug fixes or modify/enhance an existing feature. In the bug-fix case, this could introduce code that doesn't necessarily match the feature spec. In the latter case, it is not always clear whether the existing feature spec should be modified (and if so what is the workflow) or a different feature should be created. 
+
+## Horizontal vs Vertical slices
+
+This is another difficult choice. LLMs tend to prefer horizontal slicing i.e. splitting the code writing process into a DB layer, an auth layer, a logging layer and going from there. This however makes it difficult to verify that the app is working, until all layers are built. I opted for a vertical slicing strategy, but this has the other problem that certain things are genuinely cross-cutting concerns like auth and logging. The vertical slicing has worked now, but this could become brittle f a cross-cutting concern needs modification. 
+
+
+# Closing thoughts
+
+- Red-green TDD is a good design pattern to use with agents, and is something I plan to continue using
+- TDD does not however ensure consistent working software, as the subunit example shows
+- Brainstorming with an agent is legitimately a strong way to start
+- Despite this, Spec Driven tools lack a clear methodology to break down a project into features that can be built and verified easily. I used superpowers to do this, but that is a skill external to any SDD tools
+- The grain and boundaries of a feature remain a difficult problem to solve and need careful thought
