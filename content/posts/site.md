@@ -6,13 +6,13 @@ tags:
     - architecture
 ---
 
-I wanted a personal site that did two things: act as a window into my experience, and give me somewhere to write. Most personal sites do one or the other. I wanted both on the same domain, with a consistent look, and without a hosting bill.
+This is a personal site — somewhere to write, and somewhere people can find out who I am and what I work on. The constraint I gave myself was no hosting bill. That turned out to be a useful forcing function: it pushed everything toward clean, minimal architecture, where each component has exactly one job.
 
-The about page has a chatbot on it. That was a deliberate choice, not a novelty — if someone's looking at my background and wants to ask whether I've worked with Kubernetes or led a platform team, they can just ask rather than scanning bullet points. It also gave me something interesting to build.
+The about page has a chatbot on it. That was a deliberate choice, not a novelty — if someone wants to know whether I've worked with Kubernetes or led a platform team, they can just ask rather than scanning bullet points. It also gave me something interesting to build.
 
-Everything runs on free tiers. GitHub Pages serves the static site. A Cloudflare Worker handles chatbot requests and proxies them to Groq's API. Cloudflare KV handles rate limiting. With this design, no databases need to be provisioned, nor servers or associated monthly charges. The constraint wasn't frugality alone — it forced clean, minimal architecture. Every component has exactly one job.
+Everything runs on free tiers. GitHub Pages serves the static site. A Cloudflare Worker handles chatbot requests and proxies them to Groq's API. Cloudflare KV handles rate limiting. No databases, no servers, no monthly charges.
 
-The blog side came next. I was writing posts as static files before realising I'd essentially rebuilt a bad CMS. Switching to Hugo with the PaperMod theme took an afternoon and eliminated a category of problems. The page opts out of PaperMod entirely and uses its own layout, so the two halves of the site don't interfere with each other.
+Hugo with PaperMod handles the writing side. The about page opts out of PaperMod entirely and uses its own layout — the two parts of the site share a domain and a nav bar, but don't otherwise interfere with each other.
 
 ---
 
