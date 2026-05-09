@@ -1,6 +1,5 @@
 ---
 title: Running Claude Code in a Container (And Why You Probably Should Too)
-draft: true
 tags:
     - homelab
     - vibe-coding
