@@ -29,9 +29,9 @@ buildDrafts = false
 
 [menu]
   [[menu.main]]
-    identifier = "resume"
-    name = "Resume"
-    url = "/resume/"
+    identifier = "experience"
+    name = "Experience"
+    url = "/experience/"
     weight = 10
 
   [[menu.main]]

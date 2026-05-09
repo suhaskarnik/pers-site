@@ -1,5 +1,5 @@
 ---
-title: "Resume"
+title: "Experience"
 ---
 
 Senior Solution Architect | Data & Analytics | Cloud Architecture

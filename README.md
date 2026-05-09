@@ -1,4 +1,4 @@
-Personal site at [karniks.net](https://www.karniks.net) — a resume and blog hosted on GitHub Pages, with a Cloudflare Worker backend powering an LLM-based chatbot on the resume page.
+Personal site at [karniks.net](https://www.karniks.net) — a personal site and blog hosted on GitHub Pages, with a Cloudflare Worker backend powering an LLM-based chatbot on the resume page.
 
 Built with [Hugo](https://gohugo.io/) and the [PaperMod](https://github.com/adityatelange/hugo-PaperMod) theme. Pushes to `main` trigger a GitHub Actions workflow that builds and deploys to Pages automatically.
 
@@ -6,7 +6,7 @@ Built with [Hugo](https://gohugo.io/) and the [PaperMod](https://github.com/adit
 
 | Path | Purpose |
 |------|---------|
-| `content/resume/index.md` | Resume content |
+| `content/experience/index.md` | Professional experience |
 | `content/posts/` | Blog posts |
 | `worker/index.js` | Cloudflare Worker — handles chatbot requests, rate limiting, and Turnstile verification |
 | `layouts/partials/chatbot.html` | Chatbot UI injected into the resume page |
