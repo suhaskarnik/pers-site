@@ -12,7 +12,7 @@ The resume page has a chatbot on it. That was a deliberate choice, not a novelty
 
 Everything runs on free tiers. GitHub Pages serves the static site. A Cloudflare Worker handles chatbot requests and proxies them to Groq's API. Cloudflare KV handles rate limiting. With this design, no databases need to be provisioned, nor servers or associated monthly charges. The constraint wasn't frugality alone — it forced clean, minimal architecture. Every component has exactly one job.
 
-The blog side came later. I was writing posts as static files before realising I'd essentially rebuilt a bad CMS. Switching to Hugo with the PaperMod theme took an afternoon and eliminated a category of problems. The resume page opts out of PaperMod entirely and uses its own layout, so the two halves of the site don't interfere with each other.
+The blog side came next. I was writing posts as static files before realising I'd essentially rebuilt a bad CMS. Switching to Hugo with the PaperMod theme took an afternoon and eliminated a category of problems. The resume page opts out of PaperMod entirely and uses its own layout, so the two halves of the site don't interfere with each other.
 
 ---
 
