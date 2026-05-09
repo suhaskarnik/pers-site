@@ -25,7 +25,7 @@ These were my design choices going in. SpecKit worked within them.
 - Ran the `superpowers:brainstorming` skill for initial design. [Superpowers](https://github.com/obra/superpowers) is an independent open-source project, it's not part of SpecKit, but is an incredibly useful set of skills that help in agentic coding workflows. It surfaced tradeoffs I hadn't thought through — including the observation that modeling the CLI after `docker` or `kubectl` would reduce onboarding friction for both humans and agents. The output was a prioritized feature list.
 - Passed that feature list to SpecKit one feature at a time for implementation.
 - Used [Google Stitch](http://stitch.withgoogle.com/) to mock up the frontend and handed the mockup to Claude Code as a reference for the React UI.
-- Claude Code runs inside a Docker image hosted on a registry on my homelab, rebuilt nightly. When I want a session, I `podman run ...` and SSH in. More on the homelab in a separate future post.
+- Claude Code runs inside a Docker image hosted on a registry on my homelab, rebuilt nightly. When I want a session, I `podman run ...` and SSH in. More on the homelab in a [separate post]({{< relref "posts/homelab.md" >}}).
 
 # What worked well
 
