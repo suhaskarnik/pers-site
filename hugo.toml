@@ -13,6 +13,7 @@ buildDrafts = false
   ShowShareButtons = false
   ShowReadingTime = false
   comments = false
+	math = true
 
   [params.profileMode]
     enabled = true
