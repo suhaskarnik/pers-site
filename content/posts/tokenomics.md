@@ -1,5 +1,5 @@
 ---
-title: "Tokenomics"
+title: "Pay as you Vibe"
 date: "2026-05-23"
 tags:
     - vibe-coding
@@ -7,56 +7,48 @@ draft: true
 math: true
 ---
 
-Most agentic coding tools are shifting towards token-based pricing over subscription based pricing. 
+Most agentic coding tools are shifting from subscription-based pricing to token-based pricing — a change that affects enterprise CTOs, architects, platform engineers, and finance leads equally.
 
-This marks a change in the economics of vibe coding and its cousins like spec-driven development. While earlier agentic coding usage was driven by a seats-based model or a requests-based model, this is now a pay-as-you-go model.
+This shift changes the economics of vibe coding and its more disciplined cousin, spec-driven development. Earlier pricing models charged per seat or per request; now it is pay-as-you-go. GitHub Copilot [announced usage-based billing](https://docs.github.com/en/copilot/reference/copilot-billing/request-based-billing-legacy/what-changed-with-billing); Anthropic followed suit with [token-based enterprise pricing](https://support.claude.com/en/articles/11526368-how-am-i-billed-for-my-enterprise-plan).
 
-GitHub Copilot: [moving to token-based pricing](https://github.blog/news-insights/company-news/github-copilot-is-moving-to-usage-based-billing/)
-Anthropic: doing the same for [enterprise subscriptions](https://itbrief.news/story/anthropic-shifts-enterprise-billing-to-token-based-pricing)
+## What's Happening
 
-## GitHub Copilot
+GitHub Copilot's billing is built around AI credits, where an AI Credit consumption is calculated as the token usage multiplied with a "multiplier" factor. An AI credit costs $0.01, so the dollar cost of a request is essentially the AI credit consumption divided by 100.
 
-GHC's pricing is driven by AI credits, which is essentially
+The multiplier is model-specific: cheaper models like Haiku carry a sub-1 multiplier; newer or more capable models carry a higher one. The multiplier is also not fixed, as Copilot has revised it upward significantly. The older multipliers are no longer available on the GitHub website, but [this Reddit thread](https://old.reddit.com/r/GithubCopilot/comments/1sxqjuj/end_of_an_era_multiplier_increases_to_github/) has screenshots of some of them. For Claude Sonnet 4.5, the multiplier was 1; it is now 6, scaling every coding request by that factor.
 
-$$aiCredits = multipler \times tokenUsage $$
+While GitHub Copilot is a significant player in the enterprise market, the trend is broader. Anthropic briefly experimented with [removing Claude Code from its Pro plans](https://arstechnica.com/ai/2026/04/anthropic-tested-removing-claude-code-from-the-pro-plan/), and only backtracked after significant public backlash.
 
-An AI Credit is $0.01, so you could also calculate this more directly as:
+The fact that they considered removing their [most popular developer product](https://techcrunch.com/2026/03/28/anthropics-claude-popularity-with-paying-consumers-is-skyrocketing/) from a paid plan signals financial pressure that will express itself through other mechanisms — tighter token limits, higher multipliers, or both.
 
-$$Cost_{USD} = \frac{multiplier \times tokenUsage}{100}$$
+## Outputs vs Outcomes
 
-This multiplier is a factor that GHC assigns to your usage, and it varies per model. While most models have a multiplier of 1 or above, cheaper models like Haiku have a below-1 multiplier. A newer version of a model typically has a higher multiplier than an older one. 
+Token-based billing charges for *outputs*, not *outcomes*. A stream of tokens producing working code costs exactly the same as an equal number of tokens producing an error — and the latter will typically cost more once you factor in the follow-up requests to diagnose and fix it.
 
-This multiplier is also increasing. 
+Consider what happens when an agent is trying to fix an error in code it wrote. A syntax error is usually the best-case scenario here, because the compiler would flag the offending line of code. The harder part is about *logical errors*. Here, the agent needs to go look up the logs and outputs to understand what happened. A lot of those could be verbose - consuming more tokens. Even if 99% of those tokens are irrelevant to the error, the fact that the agent read them counts towards consumption. 
 
-What does that actually mean? Let's say you fire a request that consumes 1000 tokens on Claude Sonnet 4.5. That would have cost you \$ 10, because the multiplier was 1. That multiplier is now 6, which means the same request costs to \$ 60. 
+But that's not all: the logs don't always tell the full story. Bug fixing often requires reconstructing the timeline of what happened, and forming a theory of what happened. That theory could be wrong, so it needs to be tested - which takes more tokens. If it *is* wrong, then the agent needs to come up with a new theory, which also needs to be tested and so on. What all this adds up to, is that understanding the issue and fixing it could cost more than it took to write the line of code in the first place.
 
-In addition, GitHub Copilot uses a multiplier construct for billing, where, depending on the model, token consumption is scaled up by a certain multiplicative factor. For most models, this multiplier [has increased](https://docs.github.com/en/copilot/reference/copilot-billing/model-multipliers-for-annual-plans#model-multipliers-for-annual-copilot-pro-and-copilot-pro-subscribers) by a factor of 5-6x. For example, this means a request that took 100 Sonnet 4.6 tokens, was therefore accounted as 100 tokens (as the multipler used to be 1 for Sonnet). Now that same request is counted as 900 tokens.
+In other words, **failure modes in agentic coding are directly billable.**
 
-Note that from a customer perspective, tokens are *outputs*, not *outcomes*: a stream of output tokens that constitute working correct code costs exactly as much as an equal number of tokens constituting a syntax error. In fact, the latter may consume more tokens when you consider the cost of coding, then debugging the output, then writing the code.
+## The risks posed by changing economics
 
-While I have focused on GHC as it is a significant player in the enterprise player, there is a broad trend across the industry. Anthropic briefly experimented with removing Claude Code from its Pro plans, and only backtracked after significant public backlash. However, the fact that they considered removing their more beloved and respected service from paid plans suggests a lack of financial viability, which the company will seek to fix through other means like lowering token limits. 
+The first risk relates to how companies work today with coding agents. Token pricing scales with exactly the behaviours enterprises have been encouraged to adopt. Longer context windows, multi-step reasoning, and iterative refinement and the practices that underpin spec-driven development, and they are also the ones that generate the largest token bills. The cost increase is important, but the risk goes deeper than accounting.
 
-## The risks posed by changing economics 
+Companies have invested in agentic coding workflows on the assumption that productivity gains justify the tooling cost. That assumption was formed under subscription pricing, where the marginal cost of one more agent session was zero. Under token-based billing, every iteration has a price.
 
-It is tempting to think of these changes as an accounting cost increase. While that is indeed true, the *risk* bears thinking about as well. 
+A second risk becomes apparent when companies look at what they've already built with coding agents. Agentic coding has genuinely been a force multiplier: functional experts with no coding background can now build working software. What they cannot do is evaluate whether what was built is maintainable. A domain expert who vibe-coded an internal tool has unlocked something real, but they have also taken on a codebase they cannot read, debug, or extend.
 
-Agentic coding has taken the world by storm. While vibe coding is the most popular and catchy term, its more respectable cousin of Spec Driven Development is increasingly gathering credibility. Companies have increasingly looked at these as avenues to improve developer productivity. All these have their economics challenged by these recent changes. 
+Development is a small fraction of a software product's total lifecycle cost. A line of code spends far more time in production than it did in development, which means maintenance costs dwarf the cost of the initial build. 
 
-The growing usage of coding agents has resulted in code that is often not even read by a human. This is more so the case with applications vibe-coded by people not from a coding background. This has indeed been a force multiplier by unlocking the ideas that functional experts had, this also poses a risk. 
-
-Most experienced technology professionals realise that in the lifecycle of a successful software product, the development phase is but a small percentage. Even in agile projects, the duration of time that a line of code spends in production far outstrips the duration of time that it spent in development. 
-
-This means that for any software project, maintenance costs far outstrip the cost of building the software itself.
-
-At the same time, code generated by LLMs show [poor maintainability](https://arxiv.org/html/2603.03823v4#A1.SS0.SSS0.Px4.p1.1). Even Open 4.5, the best model at the time of that research, produced code less maintainable code than humans 58% of the time. 
-
+LLM-generated code compounds this. Research shows it has [poor maintainability](https://arxiv.org/html/2603.03823v4#A1.SS0.SSS0.Px4.p1.1): even Opus 4.5 — the top model in that study — produced less maintainable code than human-written equivalents in 58% of cases. Poor maintainability means more agent sessions for debugging and refactoring. As the codebase grows, so does the cost of each subsequent intervention, steadily eroding the productivity gains from the initial build. Under token-based pricing, this is not merely a quality problem — it compounds directly into billing.
 
 ## What this might mean for enterprises adopting coding agents
 
-- in the short term, increased focus on tokenomics, but this time the word refers not to NFTs but to LLM tokens
-- medium to longer term a shift towards cheaper, open source, self-hosted models
-- a strategy purely based on reducing developer headcount as primary KPI may be brittle. Enterprises will be able to show sustainable value only by increasing what the developers can produce *and maintain* at scale  
-- while the golden age of agentic coding may have encouraged a culture of building any COTS application in-house, an increased focus on full-lifecycle cost will come back to the fore
+- Expect increased focus on tokenomics in the short term — and here the word refers not to NFTs but to LLM tokens. Organisations will increasingly start to focus on what coding tasks consume tokens, and start training people on how to get the most high-value tokens.
 
+- Over a longer horizon, routine coding tasks are likely to shift towards cheaper, open-source, self-hosted models. Qwen, Mistral, and Meta's Llama family can cover a large share of day-to-day code generation at a fraction of API cost, particularly when deployed locally via tools like Ollama. That in turn favours open-source coding harnesses like [OpenCode](https://opencode.ai/) and [Pi](https://pi.dev/). It's important for companies to also spend some time sandboxing these coding agents, [like I show here]({{< relref "posts/cc-setup.md"  >}}) for Claude Code
 
-It is possible that this also creates market dynamics forcing the Big Two LLM players (OpenAI, Anthropic) towards lowering costs while increasing maintainable code. Whether this materialises or not, depends on the economics of these two players. That is largely unknown at this point, though both companies are not currently profitable at a time of increasing energy costs and a looming economic headwinds. Enterprises may not entirely share Ed Zitron's deep pessimism about the industry, but would be well advised to be cautious nevertheless before placing all their eggs in the agentic coding basket.
+- A strategy built primarily on [tokenmaxxing](https://theweek.com/tech/tokenmaxxing-the-ai-workplace-trend-pushing-rapid-integration) as the headline KPI is brittle. A team that ships fast but accumulates poorly structured code will find itself spending multiple agent sessions diagnosing each subsequent bug fix — and at token-based pricing, each of those sessions appears on the invoice. Sustainable value comes from increasing what developers can produce *and maintain* at scale, not just what they can ship initially.
+
+The recent era of agentic coding has encouraged a culture of building in-house anything that can be built. A sharper focus on full-lifecycle cost could revive the case for COTS and SaaS. Enterprises would be well advised to factor this uncertainty in before going all-in in on agentic coding. 
