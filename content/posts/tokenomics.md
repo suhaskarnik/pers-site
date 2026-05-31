@@ -3,8 +3,6 @@ title: "Pay as you Vibe"
 date: "2026-05-23"
 tags:
     - vibe-coding
-draft: true
-math: true
 ---
 
 Most agentic coding tools are shifting from subscription-based pricing to token-based pricing — a change that affects enterprise CTOs, architects, platform engineers, and finance leads equally.
